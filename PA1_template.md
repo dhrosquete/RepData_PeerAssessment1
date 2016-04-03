@@ -1,11 +1,6 @@
----
-title: 'Reproducible Research: Peer Assesment 1'
-author: "Daniel Rosquete"
-date: "April 2, 2016"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assesment 1
+Daniel Rosquete  
+April 2, 2016  
 ## Summary
 
 ### The question
@@ -31,11 +26,10 @@ And the variables associated are:
 
 ## Cleaning the dataset
 
-```{r, echo=FALSE}
-setwd("C:/Users/Daniel/MachineLearning/Data Science/4 - Investigación Reproducible/1 - Teoría y conceptos/Project1/")
-```
 
-```{r, echo=TRUE}
+
+
+```r
 originalData <- read.csv(file = "activity.csv")
 
 #Backuping the original data for modifications
@@ -48,29 +42,44 @@ projectData[is.na(projectData$steps),]$steps <- mean(na.omit(projectData$steps))
 
 ## First Question
 ### What is mean total number of steps taken per day?
-```{r, echo=TRUE}
+
+```r
 stepsTotal <- aggregate(steps ~ date,data=originalData,sum)
 meanTotalSteps <- mean(stepsTotal$steps)
 medianTotalSteps <- median(stepsTotal$steps)
 sumTotalSteps <- sum(stepsTotal$steps)
 meanTotalSteps
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 medianTotalSteps
+```
+
+```
+## [1] 10765
 ```
 
 **The mean is: 10766 and the median is: 10765**
 
-Now that we have the stepsTotal dataframe, let´s plot the histogram with the blue line indicating the mean.
+Now that we have the stepsTotal dataframe, letÂ´s plot the histogram with the blue line indicating the mean.
 
-```{r, echo=TRUE}
+
+```r
 hist(stepsTotal$steps,xlab="Steps",main="Histogram of mean of numbers of steps per day")
 abline(v=meanTotalSteps,col="blue")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+
 ## Second Question
 ### What is the average daily activity pattern?
 
-```{r, echo=TRUE}
 
+```r
 avgStepsPI <- aggregate(steps ~ interval, data=projectData, mean)
 
 plot(avgStepsPI$interval, avgStepsPI$steps, type='l', col=1,
@@ -78,8 +87,9 @@ plot(avgStepsPI$interval, avgStepsPI$steps, type='l', col=1,
      ylab="Average steps")
 
 abline(h=mean(avgStepsPI$steps), col="blue", lwd=2)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
 
 
 The previous plot is by 5-minutes interval
@@ -87,9 +97,14 @@ The previous plot is by 5-minutes interval
 This plot shows a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 
 Now the question is, which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r, echo=TRUE}
+
+```r
 maxInter <- which.max(avgStepsPI$steps)
 avgStepsPI[maxInter,]$interval
+```
+
+```
+## [1] 835
 ```
 **Answer:** The maximum interval is the 835
 
@@ -98,22 +113,38 @@ avgStepsPI[maxInter,]$interval
 
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
-First is necessary to calculate the total number of rows with NA´s
-```{r, echo=TRUE}
+First is necessary to calculate the total number of rows with NAÂ´s
+
+```r
 cat("Number of missing values =",sum(is.na(originalData$steps)))
 ```
+
+```
+## Number of missing values = 2304
+```
 Second, in a new dataframe, Devise a strategy for filling in all of the missing values in the dataset. In this case I will use the mean, which is almost the same as the median.
-```{r, echo=TRUE}
+
+```r
 filledData <- originalData
 meanFilledData <- mean(na.omit(filledData$steps))
 filledData$steps[is.na(filledData$steps)] <- meanFilledData
 cat("Number of missing values =",sum(is.na(filledData$steps)))
+```
+
+```
+## Number of missing values = 0
+```
+
+```r
 avgStepsFilled <- aggregate(steps ~ date, data=filledData, sum)
 ```
-Now that we have the filledData dataframe, let´s plot the histogram.
-```{r, echo=TRUE}
-hist(avgStepsFilled$steps,xlab="Steps",main="Histogram with NA´s replacement strategy")
+Now that we have the filledData dataframe, letÂ´s plot the histogram.
+
+```r
+hist(avgStepsFilled$steps,xlab="Steps",main="Histogram with NAÂ´s replacement strategy")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)
 **Report the mean and the median**
 
 **Do these values differ from the estimates from the first part of the assignment? **
@@ -122,12 +153,24 @@ Actually, they do but the impact is ONLY in the frequency, and it is logical, ho
 
 **What is the impact of imputing missing data on the estimates of the total daily number of steps?**
 
-```{r, echo=TRUE}
+
+```r
 meanAvgStepsFilledSteps <- mean(avgStepsFilled$steps)
 medianAvgStepsFilledSteps <- median(avgStepsFilled$steps)
 sumAvgStepsFilledSteps <- sum(avgStepsFilled$steps)
 meanAvgStepsFilledSteps
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 medianAvgStepsFilledSteps
+```
+
+```
+## [1] 10766.19
 ```
 
 **The mean is: 10766 and the median is: 10766**
@@ -136,23 +179,28 @@ The changes are minimum about the original data.
 
 ## Fourth Question
 ### Are there differences in activity patterns between weekdays and weekends?
-```{r, echo=TRUE, warning=FALSE}
+
+```r
 library(chron)
 library(ggplot2)
 weekendData <- projectData[is.weekend(projectData$date),]
 weekData <- projectData[!is.weekend(projectData$date),]
 ```
-```{r, echo=TRUE}
+
+```r
 weekendStepsPI <- aggregate(steps ~ interval, data=weekendData, mean)
 weekStepsPI <- aggregate(steps ~ interval, data=weekData, mean)
 weekendStepsPI$type<-"weekend"
 weekStepsPI$type<-"weekdays"
 weekDays<-merge(weekendStepsPI,weekStepsPI,all = TRUE)
 ```
-```{r, echo=TRUE}
+
+```r
 qplot(interval,steps,data=weekDays,facets=type~., 
       main="Weekend Average steps by Interval",xlab = "Interval",ylab="Steps",
       geom="line",colour=type)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png)
 
 They look alike, however in weekdays there are more steps in peaks.
